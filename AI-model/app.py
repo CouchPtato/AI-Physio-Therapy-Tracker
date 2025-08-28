@@ -6,9 +6,6 @@ import numpy as np
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-# -------------------------------
-# Helper function to calculate angle
-# -------------------------------
 def calculate_angle(a, b, c):
     a = np.array(a)  # First
     b = np.array(b)  # Mid
@@ -22,9 +19,6 @@ def calculate_angle(a, b, c):
         
     return angle
 
-# -------------------------------
-# Define exercises with angles
-# -------------------------------
 exercises = {
     "Squat": {"joints": ("hip", "knee", "ankle"), "good_range": (70, 100)},
     "Lunge": {"joints": ("hip", "knee", "ankle"), "good_range": (80, 110)},
@@ -32,9 +26,6 @@ exercises = {
     "Bicep Curl": {"joints": ("shoulder", "elbow", "wrist"), "good_range": (30, 60)}
 }
 
-# -------------------------------
-# Streamlit UI
-# -------------------------------
 st.title("AI Therapy Exercise Tracker 🏋️‍♂️")
 
 exercise_choice = st.selectbox("Choose Exercise", list(exercises.keys()))
@@ -50,26 +41,21 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
     while cap.isOpened():
         ret, frame = cap.read()
         
-        # Recolor image
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
         
-        # Detection
         results = pose.process(image)
         
-        # Recolor back
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
         try:
             landmarks = results.pose_landmarks.landmark
             
-            # Get selected exercise
             ex = exercises[exercise_choice]
             joint_names = ex["joints"]
             good_range = ex["good_range"]
             
-            # Map mediapipe indexes
             lm = {
                 "hip": landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
                 "knee": landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value],
@@ -79,21 +65,18 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
                 "wrist": landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value]
             }
             
-            # Calculate angle
             angle = calculate_angle(
                 (lm[joint_names[0]].x, lm[joint_names[0]].y),
                 (lm[joint_names[1]].x, lm[joint_names[1]].y),
                 (lm[joint_names[2]].x, lm[joint_names[2]].y)
             )
             
-            # Count reps
             if angle > good_range[1]:
                 stage = "down"
             if angle < good_range[0] and stage == "down":
                 stage = "up"
                 counter += 1
             
-            # Display info
             cv2.putText(image, f'Exercise: {exercise_choice}', (10,30),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
             cv2.putText(image, f'Angle: {int(angle)}', (10,70),
@@ -106,7 +89,6 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         except:
             pass
         
-        # Render detections
         mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
         
         cv2.imshow('AI Therapy', image)

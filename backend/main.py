@@ -37,7 +37,7 @@ app = FastAPI()
 # Allow CORS for React Native
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -87,7 +87,7 @@ async def analyze_frame(
             if angle < 70 or angle > 170:
                 response["form"] = "bad"
 
-    # Save session summary (optional)
+    # Save session summary
     db = SessionLocal()
     session = Session(user_id=user_id, exercise=exercise, reps=response["reps"])
     db.add(session)

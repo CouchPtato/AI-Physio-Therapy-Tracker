@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Image, Platform, StyleSheet, View, Text, ActivityIndicator, Alert } from 'react-native';
+import { Button, Image, StyleSheet, View, Text, ActivityIndicator, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-const BACKEND_URL = 'http://localhost:8000/analyze_frame'; // Change if backend runs elsewhere
+const BACKEND_URL = 'http://localhost:8000/analyze_frame'; // Update to your backend URL if needed
 
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -37,8 +37,8 @@ export default function HomeScreen() {
         name: 'photo.jpg',
         type: 'image/jpeg',
       } as any);
-      formData.append('exercise', 'squat');
-      formData.append('user_id', '1');
+      formData.append('exercise', 'squat'); // Default exercise type
+      formData.append('user_id', '1'); // Default user ID
 
       const res = await fetch(BACKEND_URL, {
         method: 'POST',
@@ -47,9 +47,19 @@ export default function HomeScreen() {
         },
         body: formData,
       });
+
+      if (!res.ok) {
+        const errorMessage = await res.text();
+        console.error('Backend error:', errorMessage);
+        Alert.alert('Error', 'Backend returned an error.');
+        return;
+      }
+
       const data = await res.json();
+      console.log('Response data:', data); // Debugging
       setResult(data);
     } catch (e) {
+      console.error('Error:', e); // Debugging
       Alert.alert('Error', 'Failed to upload image or connect to backend.');
     } finally {
       setUploading(false);
@@ -69,11 +79,11 @@ export default function HomeScreen() {
       {uploading && <ActivityIndicator size="large" />}
       {result && (
         <View style={styles.result}>
-          <Text>Exercise: {result.exercise}</Text>
-          <Text>Angle: {result.angle}</Text>
-          <Text>Form: {result.form}</Text>
-          <Text>Stage: {result.stage}</Text>
-          <Text>Reps: {result.reps}</Text>
+          <Text>Exercise: {result.exercise || 'N/A'}</Text>
+          <Text>Angle: {result.angle || 'N/A'}</Text>
+          <Text>Form: {result.form || 'N/A'}</Text>
+          <Text>Stage: {result.stage || 'N/A'}</Text>
+          <Text>Reps: {result.reps || 'N/A'}</Text>
         </View>
       )}
     </View>

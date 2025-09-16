@@ -47,8 +47,8 @@ with open(csv_file, mode = "a", newline = "") as f:
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         if results.pose_landmarks:
-            landmarks = results.pose_landmarks.landmark
-
+            landmarks = results.pose_landmarks.landmarkd
+            
             form = "good"
             angle = None
 

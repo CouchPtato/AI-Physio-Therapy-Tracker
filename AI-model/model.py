@@ -48,7 +48,6 @@ with open(csv_file, mode = "a", newline = "") as f:
 
         if results.pose_landmarks:
             landmarks = results.pose_landmarks.landmark
-
             form = "good"
             angle = None
 
